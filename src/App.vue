@@ -3,22 +3,24 @@ import { onMounted, ref } from 'vue';
 import gsap from 'gsap'
 import {ScrollTrigger} from 'gsap/ScrollTrigger'
 import BgVideo from './assets/bg-video.mp4'
+import type { Ref } from 'vue'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const content = ref(null)
-const vid = ref(null)
+const content: Ref<HTMLDivElement | null> = ref(null)
+const vid:Ref<HTMLVideoElement | null> = ref(null)
 
 // basically used this as my reference:
 // https://codepen.io/shshaw/pen/vYKBPbv/9e810322d70c306de2d18237d0cb2d78
 
 onMounted(() => {
+    const video = vid.value as HTMLVideoElement
 
     // handles iOS play issue
-    once(document.documentElement, "touchstart", function (e) {
-        vid.value.play()
-        vid.value.pause()
-    })
+    document.documentElement.addEventListener("touchstart", () => {
+        video.play()
+        video.pause()
+    }, {once: true})
     
     // setup scrollTrigger
     let tl = gsap.timeline({
@@ -33,26 +35,14 @@ onMounted(() => {
     })
 
     // link video time to animation timeline
-    once(vid.value, "loadedmetadata", () => {
-        tl.fromTo(vid.value, 
-        {currentTime: 0}, 
-        {currentTime: vid.value.duration || 1})
-    })
+    video.addEventListener("loadedmetadata", () => {
+        tl.fromTo(
+            vid.value, 
+            {currentTime: 0}, 
+            {currentTime: video.duration || 1}
+        ) 
+    }, {once: true})
 })
-
-// cool helper function triggering an event only one time...
-// although I wonder why they didn't use the "once" param:
-// @link: https://developer.mozilla.org/en-US/docs/web/api/eventtarget/addeventlistener#parameters
-function once (el, event, func, opts = {}) {
-    var onceFn = function (e: Event) {
-        el.removeEventListener(event, onceFn)
-        func.apply(this, arguments)
-    }
-
-    el.addEventListener(event, onceFn, opts)
-    return onceFn
-}
-
 </script>
 
 <template>
