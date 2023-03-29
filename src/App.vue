@@ -28,9 +28,10 @@ onMounted(() => {
 
         scrollTrigger: {
             trigger: content.value,
-            start: 'top top',
+            start: '25%', // <-- this determines when the video begins to play
             end: 'bottom bottom',
-            scrub: true
+            scrub: true,
+            markers: true // <-- show markers for debugging
         }
     })
 
